@@ -1,0 +1,15 @@
+#!/bin/bash
+
+AWK=$(which awk)
+GREP=$(which grep)
+IPTABLES=$(which iptables)
+NSLOOKUP=$(which nslookup)
+HOTJARURLS=(hotjar.com static.hotjar.com script.hotjar.com vars.hotjar.com insights.hotjar.com)
+
+for i in ${HOTJARURLS[@]}; do
+	IPS=$($NSLOOKUP ${i} | grep 'Address:' | grep -v 127 | awk '{print $NF}')
+	for j in ${IPS[@]}; do
+		$IPTABLES -I INPUT -s ${j} -j DROP
+		$IPTABLES -I OUTPUT -s ${j} -j DROP
+	done
+done
